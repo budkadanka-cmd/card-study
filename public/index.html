@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards Learning — Многофункциональное Облако знаний</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Декоративные фоновые элементы "Облака" -->
+    <div class="cloud-bg c-1"></div>
+    <div class="cloud-bg c-2"></div>
+
+    <div class="app-container">
+        
+        <!-- Шапка в стиле технологичного лендинга -->
+        <header class="main-header">
+            <div class="header-logo">☁️ Flashcards Learning</div>
+            <h1>Многофункциональное облако <br><span>для ваших карточек</span></h1>
+            <p class="header-desc">Бесконечный рандомный пул повторения без ограничений и лимитов</p>
+        </header>
+
+        <!-- Главная рабочая область (Bento-структура в светлых тонах) -->
+        <div class="bento-grid">
+            
+            <!-- Левый блок: Конструктор -->
+            <section class="bento-card card-form">
+                <div class="card-tag">Конструктор</div>
+                <h2>Создать карточку</h2>
+                
+                <div class="input-wrapper">
+                    <label>Лицевая сторона (Вопрос)</label>
+                    <input type="text" id="front-text" placeholder="Введите текст вопроса..." autocomplete="off">
+                    <label class="file-label">
+                        <input type="file" id="front-image" accept="image/*">
+                        <span>📷 Прикрепить фото</span>
+                    </label>
+                </div>
+
+                <div class="input-wrapper">
+                    <label>Обратная сторона (Ответ)</label>
+                    <input type="text" id="back-text" placeholder="Введите текст ответа..." autocomplete="off">
+                    <label class="file-label">
+                        <input type="file" id="back-image" accept="image/*">
+                        <span>📷 Прикрепить фото</span>
+                    </label>
+                </div>
+
+                <button class="btn btn-blue" id="add-btn">Добавить в облако</button>
+                <div class="pool-counter" id="stats">Загружено серверов-карт: 0</div>
+            </section>
+
+            <!-- Правый блок: Интерактивная практика -->
+            <section class="bento-card card-practice">
+                <div class="card-tag tag-purple">Система повторения</div>
+                <div class="practice-top">
+                    <h2>Интерактивная сессия</h2>
+                    <span id="card-index-counter" class="session-badge">Сессия готова</span>
+                </div>
+
+                <!-- Главная интерактивная карточка -->
+                <div id="flashcard" class="cloud-flashcard">
+                    <div class="card-inner">
+                        <!-- Лицо -->
+                        <div class="card-side side-front">
+                            <div class="content-box" id="card-front-content">
+                                <p class="placeholder-text">Нажмите «Случайный микс 🎲», чтобы активировать систему облачного повторения</p>
+                            </div>
+                        </div>
+                        <!-- Оборот -->
+                        <div class="card-side side-back">
+                            <div class="content-box" id="card-back-content"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Зона управления -->
+                <div class="control-zone">
+                    <button id="next-btn" class="btn btn-blue">Случайный микс 🎲</button>
+                    
+                    <div id="action-buttons" class="hidden">
+                        <button id="wrong-btn" class="btn-status btn-status-wrong">Не помню</button>
+                        <button id="flip-btn" class="btn-status btn-status-flip">Перевернуть 🔄</button>
+                        <button id="right-btn" class="btn-status btn-status-right">Помню!</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Нижняя секция: Менеджер базы (Галерея карточек) -->
+        <section class="bento-card database-section">
+            <div class="card-tag tag-green">База данных</div>
+            <h2>Ваше облачное хранилище карточек</h2>
+            <div id="cards-gallery" class="cards-gallery">
+                <!-- Сюда JS будет рендерить карточки динамически -->
+            </div>
+        </section>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
