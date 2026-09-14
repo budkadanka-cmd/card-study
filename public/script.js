@@ -1,8 +1,8 @@
-// Загрузка пула из локальной памяти
+// Загрузка пула из локальной памяти устройства
 let cards = JSON.parse(localStorage.getItem('cloud_pool_cards')) || [];
 let activeIndex = -1;
 
-// Элементы
+// DOM элементы
 const frontTextInput = document.getElementById('front-text');
 const frontImgInput = document.getElementById('front-image');
 const backTextInput = document.getElementById('back-text');
@@ -29,7 +29,7 @@ updateUI();
 document.querySelectorAll('.file-label input').forEach(input => {
     input.addEventListener('change', (e) => {
         if(e.target.files.length > 0) {
-            e.target.nextElementSibling.innerText = "📁 " + e.target.files[0].name.substring(0, 12) + "...";
+            e.target.nextElementSibling.innerText = "📁 " + e.target.files.name.substring(0, 12) + "...";
         }
     });
 });
@@ -94,7 +94,7 @@ function renderGallery() {
         return;
     }
 
-    cards.forEach((card, idx) => {
+    cards.forEach((card) => {
         const item = document.createElement('div');
         item.className = 'gallery-item';
         
@@ -113,7 +113,7 @@ function renderGallery() {
     });
 }
 
-// Удаление карты из облака
+// Удаление карты
 window.deleteCard = function(id) {
     cards = cards.filter(c => c.id !== id);
     if (activeIndex >= cards.length) activeIndex = -1;
@@ -170,7 +170,7 @@ function toggleFlip() {
     flashcard.classList.toggle('is-flipped');
 }
 
-// Линейные события
+// Слушатели событий интерфейса
 addBtn.addEventListener('click', addCard);
 nextBtn.addEventListener('click', pickRandomCard);
 flashcard.addEventListener('click', toggleFlip);
