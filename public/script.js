@@ -1,5 +1,9 @@
-// Загрузка пула из локальной памяти устройства
-let cards = JSON.parse(localStorage.getItem('cloud_pool_cards')) || [];
+// НАСТРОЙКА СВЯЗИ С ВАШИМ ОБЛАКОМ SUPABASE
+// Вставьте сюда свои личные данные из блокнота
+const SUPABASE_URL = "https://supabase.com/dashboard/project/fftsunsvesznwluhqcpu/settings/api-keys";
+const SUPABASE_KEY = "sb_publishable_eMPL5srko__l0MwgrSrE8w_v_q1nh9E";
+
+let cards = [];
 let activeIndex = -1;
 
 // DOM элементы
@@ -22,17 +26,31 @@ const flipBtn = document.getElementById('flip-btn');
 const rightBtn = document.getElementById('right-btn');
 const gallery = document.getElementById('cards-gallery');
 
-// Инициализация
-updateUI();
+// Главная функция для отправки запросов в облачную базу
+async function supabaseFetch(endpoint, options = {}) {
+    const headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        ...options.headers
+    };
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, { ...options, headers });
+    if (!response.ok) {
+        const err = await response.text();
+        console.error("Ошибка Supabase:", err);
+    }
+    return response;
+}
 
-// Отслеживание названий загружаемых файлов
-document.querySelectorAll('.file-label input').forEach(input => {
-    input.addEventListener('change', (e) => {
-        if(e.target.files.length > 0) {
-            e.target.nextElementSibling.innerText = "📁 " + e.target.files.name.substring(0, 12) + "...";
-        }
-    });
-});
+// Загрузка всех карточек из облака (Синхронизация)
+async function loadCardsFromCloud() {
+    const response = await supabaseFetch("cards?select=*&order=id.asc");
+    if (response.ok) {
+        cards = await response.json();
+        statsText.innerText = `Синхронизировано карт в облаке: ${cards.length}`;
+        renderGallery();
+    }
+}
 
 function fileToBase64(fileInput) {
     return new Promise((resolve) => {
@@ -43,7 +61,7 @@ function fileToBase64(fileInput) {
     });
 }
 
-// Добавление карты
+// Отправка новой карты в облачную базу
 async function addCard() {
     const frontText = frontTextInput.value.trim();
     const backText = backTextInput.value.trim();
@@ -51,42 +69,48 @@ async function addCard() {
     if (!frontText && !frontImgInput.files[0]) return alert('Заполните лицевую сторону!');
     if (!backText && !backImgInput.files[0]) return alert('Заполните обратную сторону!');
 
+    addBtn.innerText = "Синхронизация...";
+    addBtn.disabled = true;
+
     const frontImg = await fileToBase64(frontImgInput);
     const backImg = await fileToBase64(backImgInput);
 
-    const newCard = {
-        id: Date.now(),
-        frontText,
-        frontImg,
-        backText,
-        backImg
-    };
+    // Отправляем POST запрос в таблицу cards
+    const response = await supabaseFetch("cards", {
+        method: "POST",
+        body: JSON.stringify({ frontText, frontImg, backText, backImg })
+    });
 
-    cards.push(newCard);
-    saveData();
+    if (response.ok) {
+        frontTextInput.value = '';
+        backTextInput.value = '';
+        frontImgInput.value = '';
+        backImgInput.value = '';
+        document.getElementById('front-image').nextElementSibling.innerText = "📷 Прикрепить фото";
+        document.getElementById('back-image').nextElementSibling.innerText = "📷 Прикрепить фото";
+        
+        // Перезагружаем пул из облака
+        await loadCardsFromCloud();
+        alert('Карточка сохранена в облачную базу!');
+    }
+    addBtn.innerText = "Добавить в облако";
+    addBtn.disabled = false;
+}
+
+// Удаление карты из облачной базы
+window.deleteCard = async function(id) {
+    if(!confirm("Удалить карточку из облака насовсем?")) return;
     
-    // Сброс формы
-    frontTextInput.value = '';
-    backTextInput.value = '';
-    frontImgInput.value = '';
-    backImgInput.value = '';
-    document.getElementById('front-image').nextElementSibling.innerText = "📷 Прикрепить фото";
-    document.getElementById('back-image').nextElementSibling.innerText = "📷 Прикрепить фото";
+    const response = await supabaseFetch(`cards?id=eq.${id}`, {
+        method: "DELETE"
+    });
 
-    updateUI();
-}
+    if (response.ok) {
+        await loadCardsFromCloud();
+        resetSessionView();
+    }
+};
 
-function saveData() {
-    localStorage.setItem('cloud_pool_cards', JSON.stringify(cards));
-}
-
-function updateUI() {
-    saveData();
-    statsText.innerText = `Загружено серверов-карт: ${cards.length}`;
-    renderGallery();
-}
-
-// Рендеринг нижней галереи хранилища
 function renderGallery() {
     gallery.innerHTML = '';
     if (cards.length === 0) {
@@ -97,9 +121,7 @@ function renderGallery() {
     cards.forEach((card) => {
         const item = document.createElement('div');
         item.className = 'gallery-item';
-        
-        let previewHtml = '';
-        if(card.frontImg) previewHtml = `<img src="${card.frontImg}">`;
+        let previewHtml = card.frontImg ? `<img src="${card.frontImg}">` : '';
 
         item.innerHTML = `
             <div class="gallery-info">
@@ -113,14 +135,6 @@ function renderGallery() {
     });
 }
 
-// Удаление карты
-window.deleteCard = function(id) {
-    cards = cards.filter(c => c.id !== id);
-    if (activeIndex >= cards.length) activeIndex = -1;
-    updateUI();
-    resetSessionView();
-};
-
 function resetSessionView() {
     flashcard.classList.remove('is-flipped');
     cardFrontContent.innerHTML = '<p class="placeholder-text">Нажмите «Случайный микс 🎲», чтобы активировать систему облачного повторения</p>';
@@ -130,7 +144,6 @@ function resetSessionView() {
     activeIndex = -1;
 }
 
-// Запуск случайного выбора (Бесконечный микс)
 function pickRandomCard() {
     if (cards.length === 0) {
         cardFrontContent.innerHTML = '<p class="placeholder-text" style="color:#ef4444">Ошибка: Облачное хранилище пусто!</p>';
@@ -141,7 +154,6 @@ function pickRandomCard() {
     nextBtn.classList.add('hidden');
     actionButtons.classList.remove('hidden');
 
-    // Чистый рандом
     activeIndex = Math.floor(Math.random() * cards.length);
     const card = cards[activeIndex];
 
@@ -170,11 +182,13 @@ function toggleFlip() {
     flashcard.classList.toggle('is-flipped');
 }
 
-// Слушатели событий интерфейса
+// Навешиваем слушатели
 addBtn.addEventListener('click', addCard);
 nextBtn.addEventListener('click', pickRandomCard);
 flashcard.addEventListener('click', toggleFlip);
 flipBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFlip(); });
-
 wrongBtn.addEventListener('click', (e) => { e.stopPropagation(); pickRandomCard(); });
 rightBtn.addEventListener('click', (e) => { e.stopPropagation(); pickRandomCard(); });
+
+// Первичный запуск загрузки при открытии сайта
+loadCardsFromCloud();
