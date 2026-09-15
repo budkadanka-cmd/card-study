@@ -1,6 +1,6 @@
 // НАСТРОЙКА СВЯЗИ С ВАШИМ ОБЛАКОМ SUPABASE
 const SUPABASE_URL = "https://fftsunsvesznwluhqcpu.supabase.co";
-const SUPABASE_KEY = "sb_publishable_eMPL5srko_l0MwgrSrE8W_v_q1nh9E";
+const SUPABASE_KEY = "sb_publishable_eMPL5srko__l0MwgrSrE8w_v_q1nh9E";
 
 let allCards = []; // Все карточки из облака
 let filteredCards = []; // Карточки выбранной колоды
