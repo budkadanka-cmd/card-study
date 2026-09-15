@@ -1,7 +1,6 @@
 // НАСТРОЙКА СВЯЗИ С ВАШИМ ОБЛАКОМ SUPABASE
-// Вставьте сюда свои личные данные из блокнота
-const SUPABASE_URL = "https://supabase.com/dashboard/project/fftsunsvesznwluhqcpu/settings/api-keys";
-const SUPABASE_KEY = "sb_publishable_eMPL5srko__l0MwgrSrE8w_v_q1nh9E";
+const SUPABASE_URL = "https://fftsunsvesznwluhqcpu.supabase.co";
+const SUPABASE_KEY = "sb_publishable_eMPL5srko__l0MwgrSrE8W_v_q1nh9E";
 
 let cards = [];
 let activeIndex = -1;
