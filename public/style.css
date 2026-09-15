@@ -387,28 +387,27 @@ input[type="text"]:focus {
     margin-top: 15px;
     padding: 0;
 }
-/* Жестко сжимаем фотки внутри интерактивной карточки на ЛЮБЫХ экранах */
-.flashcard img {
+/* ЖЕСТКОЕ ОГРАНИЧЕНИЕ ДЛЯ ВСЕЙ КАРТОЧКИ, ЧТОБЫ ОНА НЕ РАЗДУВАЛАСЬ НА ПК */
+.flashcard {
     max-width: 100%;
-    max-height: 40vh; /* Занимает не больше 40% от высоты экрана компьютера */
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    border-radius: 12px;
-    margin-top: 15px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Красивая мягкая тень */
+    max-height: 450px !important; /* Больше этой высоты карточка не вырастет */
+    overflow: hidden; /* Всё, что вылазит, будет обрезаться или сжиматься */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Ограничиваем фотки в нижней галерее, чтобы не ломали сетку */
-.gallery-item img {
-    max-width: 120px;
-    max-height: 120px;
-    object-fit: cover;
-    border-radius: 6px;
-    margin-top: 8px;
+/* ИДЕАЛЬНОЕ СЖАТИЕ ФОТОГРАФИИ ПОД РАЗМЕР ВНУТРИ КАРТОЧКИ */
+.flashcard img {
+    max-width: 100% !important;
+    max-height: 280px !important; /* Картинка займет максимум половину карточки */
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important; /* Пропорции не сломаются, фото сожмется */
+    border-radius: 12px;
+    margin-top: 10px;
+    display: block;
 }
 
 .btn-delete:hover { text-decoration: underline; }
